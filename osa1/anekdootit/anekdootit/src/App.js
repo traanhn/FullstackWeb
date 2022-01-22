@@ -1,9 +1,24 @@
 import React, { useState } from 'react'
 
-const Button =(props) => {
+const Button =({handleClick, text}) => {
   return (
-      <button onClick={props.handleClick}> {props.text}
-      </button>
+      <button onClick={handleClick}> {text} </button>
+  )
+}
+
+
+const HighestVoteQuote = (props) => {
+  const maxPoints = Math.max.apply(null,props.allPoints)
+  const index = props.allPoints.indexOf(maxPoints)
+  return (
+  <>
+    <h1>
+        Anecdote with most votes
+    </h1>
+    <div>
+        {props.list[index]}
+    </div>
+  </>
   )
 }
 
@@ -20,28 +35,35 @@ const App = () => {
   ]
 
   const [selected, setSelected] = useState(0)
+  const [allPoints,setPoint] = useState(Array(anecdotes.length).fill(0))
 
-  const handleRandomizerClick = (list) => {
-    return  () => {
-      setSelected(Math.floor(Math.random()*list.length))
-    }
+  const handleRandomizerClick = (list) => () => {
+     setSelected(Math.floor(Math.random()*list.length))
   }
 
   const handleVoteClick = () => {
-    const points = Array(anecdotes.length).fill(0)
-    setSelected(anecdotes[selected] + 1)
-    console.log('selected ', selected)
-    console.log('array ', anecdotes[selected])
+     const copyState = [ ...allPoints]
+     setPoint(copyState, copyState[selected] += 1 )
   }
 
   return (
-    <div>
-      <div>{anecdotes[selected]}</div>
-      <Button text = "next anecdote" handleClick = {handleRandomizerClick(anecdotes)}/>
-      <Button text = "vote" handleClick={handleVoteClick}/>
-
-    </div>
+    <>
+      <h1>
+        Anecdote of the day
+      </h1>
+      <div>
+        {anecdotes[selected]}
+      </div>
+      <div>
+        has {allPoints[selected]} votes
+      </div>   
+      <Button text = "next anecdotes" handleClick = {handleRandomizerClick(anecdotes)}/>
+      <Button text = "vote" handleClick = {handleVoteClick}/>
+      <HighestVoteQuote list = {anecdotes} allPoints = {allPoints} />
+    </>
   )
+
+
 }
 
 export default App
