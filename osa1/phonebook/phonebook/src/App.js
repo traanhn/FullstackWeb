@@ -3,6 +3,7 @@ import axios from 'axios'
 import Persons from './components/Persons'
 import PersonForm from './components/PersonForm'
 import Filter from './components/Filter'
+import personService from './services/person'
 
 
 
@@ -99,21 +100,38 @@ const App = (props) => {
   const [newNumber,setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [persons, setPersons] = useState([]) 
+
   const addName = (event) => {
       event.preventDefault()
+      // Create a new object format 
       const personObject = {
         name: newName,
         number : newNumber
       }
-      persons.filter(person => areTheseObjectsEqual(person.name, personObject.name)).length  !== 0 
-          ? 
-          alert(`${newName} is already added to phonebook`) 
-          :
-      setPersons(persons.concat(personObject))
+      // checking if person exists in the db or not. Return an array 
+      const addedPerson = persons.filter(person => areTheseObjectsEqual(person.name, personObject.name))
+
+      if(addedPerson.length  === 0) 
+      {
+      // if person not exist, add into the list
+        personService.create(personObject).then(returnedPerson => setPersons(persons.concat(returnedPerson)))
+      } 
+      else 
+      {
+      // ask what the next step to do with the existed person
+      window.confirm(`${newName} is already added to phonebook,replace the old number with a new one?`)
+        ?
+      // if ok, then update data of the existed person with new data 
+      personService.update(addedPerson[0].id, personObject)
+      .then(returnedPerson => setPersons(persons.map(person => person.id !==  addedPerson[0].id ? person : returnedPerson)))
+        :
+      setPersons(persons)
+      }
+
       setNewName('')
       setNewNumber('')
-  }
 
+  }
 
   const handleNameChange = (event) => {
       setNewName(event.target.value)
@@ -142,11 +160,19 @@ const App = (props) => {
 
   }
 
+  const handleDeleteClick = (deletedPerson) => {
+      personService.deletePerson(deletedPerson.id)
+      const remainedPerson = persons.filter(person => person.id !== deletedPerson.id)
+      if (window.confirm(`Delete ${deletedPerson.name} ?`)){
+      setPersons(remainedPerson)
+      }    
+  }
+
+
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
+    personService.getAll()
+      .then(initialPersons => {
+        setPersons(initialPersons)
       })
   }, [])
   
@@ -157,7 +183,7 @@ const App = (props) => {
           <h3>Add a new</h3>
           <PersonForm newName = {newName} newNumber = {newNumber} handleNumberChange = {handleNumberChange} handleNameChange = {handleNameChange} addName = {addName}/>
           <h3>Numbers</h3>
-          <Persons persons = {persons}/>
+          <Persons persons = {persons} handleDeleteClick ={handleDeleteClick}/>
         </div>
       )
     }
