@@ -101,7 +101,7 @@ const App = (props) => {
   const [newNumber,setNewNumber] = useState('')
   const [newFilter, setNewFilter] = useState('')
   const [persons, setPersons] = useState([]) 
-  const [errorMessage, setErrorMessage] = useState('test')
+  const [errorMessage, setErrorMessage] = useState(null)
 
 
   const addName = (event) => {
