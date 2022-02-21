@@ -123,7 +123,14 @@ const App = (props) => {
         setErrorMessage(`Added ${personObject.name}`)
         setTimeout(() => {
           setErrorMessage(null)
-        }, 2000)})
+        }, 5000)
+        })
+        .catch(error => {
+          setErrorMessage(`${error.response.data.error}`)
+          setTimeout(() => {
+          setErrorMessage(null)
+        }, 5000)
+        })
       } 
       else 
       {
@@ -138,13 +145,13 @@ const App = (props) => {
       setErrorMessage(`Updated phonenumber ${personObject.number} for ${personObject.name}`)
       setTimeout(() => {
           setErrorMessage(null)
-        }, 2000)})
+        }, 5000)})
       .catch(error =>
       {
       setErrorMessage(`Information of ${personObject.name} was already removed from server`)
       setTimeout(() => {
           setErrorMessage(null)
-        },2000)
+        },5000)
       setPersons(persons.filter(n => n.id !== addedPerson[0].id))
       } 
       )
